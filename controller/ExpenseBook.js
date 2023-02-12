@@ -67,7 +67,7 @@ exports.getExpenseBookDetailsCategoryExpenseList = async (req, res) => {
       const expenseBookCategory = await ExpenseCategory.find({
         expense_book_id: singleExpenseBook._id,
         postedBy: req.user,
-      }).populate("postedBy", "name slug role");
+      }).populate("postedBy", "name slug role").sort({date:-1});
 
       // to get expense list for one expense book
 
@@ -171,7 +171,7 @@ exports.getExpenseBookDetailsCategoryExpenseList = async (req, res) => {
         
       });
     } else {
-      return res.status(422).json({ error: "You cant access other user post" });
+       res.status(422).json({ error: "You cant access other user post" });
     }
   } catch (error) {
     res.status(500).json({ error: "Something went wrong" });
