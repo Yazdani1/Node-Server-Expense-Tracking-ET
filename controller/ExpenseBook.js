@@ -9,7 +9,6 @@ exports.createExpenseBook = async (req, res) => {
   const { name, color } = req.body;
 
   try {
-    
     if (!name) {
       return res.status(422).json({ error: "please add expense book name" });
     }
@@ -67,7 +66,9 @@ exports.getExpenseBookDetailsCategoryExpenseList = async (req, res) => {
       const expenseBookCategory = await ExpenseCategory.find({
         expense_book_id: singleExpenseBook._id,
         postedBy: req.user,
-      }).populate("postedBy", "name slug role").sort({date:-1});
+      })
+        .populate("postedBy", "name slug role")
+        .sort({ date: -1 });
 
       // to get expense list for one expense book
 
@@ -134,31 +135,31 @@ exports.getExpenseBookDetailsCategoryExpenseList = async (req, res) => {
         },
       ]);
 
-        // to sum number of  expenses list for each expense book
-        const totalExpenseListPostCount = await ExpenseList.aggregate([
-          // match is used to get all the TPI based on each WM ID
-          { $match: { expense_book_id: singleExpenseBook._id } },
-  
-          {
-            $group: {
-              _id: "$expense_book_id",
-              count: { $sum: 1 },
-            },
-          },
-        ]);
+      // to sum number of  expenses list for each expense book
+      const totalExpenseListPostCount = await ExpenseList.aggregate([
+        // match is used to get all the TPI based on each WM ID
+        { $match: { expense_book_id: singleExpenseBook._id } },
 
-        // to count total expenses based on date. each day how many expenses user did for each expense book;
-        const totalExpensesCountByDate = await ExpenseList.aggregate([
-          // match is used to get all the TPI based on each WM ID
-          { $match: { expense_book_id: singleExpenseBook._id } },
-          {
-            $group: {
-              _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
-              TotalExpenses: { $sum: "$amount" },
-            },
+        {
+          $group: {
+            _id: "$expense_book_id",
+            count: { $sum: 1 },
           },
-          { $sort : { date : -1 } }
-        ]);
+        },
+      ]);
+
+      // to count total expenses based on date. each day how many expenses user did for each expense book;
+      const totalExpensesCountByDate = await ExpenseList.aggregate([
+        // match is used to get all the TPI based on each WM ID
+        { $match: { expense_book_id: singleExpenseBook._id } },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+            TotalExpenses: { $sum: "$amount" },
+          },
+        },
+        { $sort: { date: -1 } },
+      ]);
       res.status(200).json({
         singleExpenseBook,
         expenseBookCategory,
@@ -167,11 +168,10 @@ exports.getExpenseBookDetailsCategoryExpenseList = async (req, res) => {
         expenseListCountByDate,
         totalExpensesForEachExpenseBook,
         totalExpenseListPostCount,
-        totalExpensesCountByDate
-        
+        totalExpensesCountByDate,
       });
     } else {
-       res.status(422).json({ error: "You cant access other user post" });
+      res.status(422).json({ error: "You cant access other user post" });
     }
   } catch (error) {
     res.status(500).json({ error: "Something went wrong" });
@@ -179,6 +179,12 @@ exports.getExpenseBookDetailsCategoryExpenseList = async (req, res) => {
 };
 
 // to test how lookup work
+// Lookup can be used to get information from one collecto to another collection where we do joining.
+// for example in expense book User schema is joined. so using lookup we can get user information from each expense book
+// here from - means from which schema i want to get informationtion, sousers is the collection name of us user schema
+// localField- is the field in the expenseBook where is connected
+//foreign field is the id field of the user schema
+// as - is a alias and we can give any name of it.
 
 exports.getExpenseBookByLookup = async (req, res) => {
   try {
