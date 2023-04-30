@@ -1,5 +1,6 @@
-const ExpenseList = require("../model/ExpenseList");
 const ObjectId = require("mongoose").Types.ObjectId;
+
+const ExpenseList = require("../model/ExpenseList");
 
 /**
  * To create expense List for each expense book
@@ -24,7 +25,6 @@ exports.createExpenseList = async (req, res) => {
     res.status(500).json({ error: "Something went wrong" });
   }
 };
-
 
 /**
  * To delete expense list
@@ -61,10 +61,13 @@ exports.deleteExpenseListItem = async (req, res) => {
   }
 };
 
-// to count how much a user has spent. all the expenses ammount will be counted from any expense book
-//or expense list that a user hase created. First it filter user post based on their loged in id then count
-// all the expenses amount,.,
-
+/**
+ * // to count how much a user has spent. all the expenses ammount will be counted from any expense book
+   //or expense list that a user hase created. First it filter user post based on their loged in id then count
+   // all the expenses amount,.,
+ * @param {*} req 
+ * @param {*} res 
+ */
 exports.getTotalExpensesForEachUser = async (req, res) => {
   try {
     const totalExpensesbyUser = await ExpenseList.aggregate([

@@ -1,10 +1,12 @@
 const router = require("express").Router();
+
 const {
   userRegistration,
   userLogin,
   getAllUser,
   getCurrentUserRole,
   updateUserProfile,
+  updateSingleUserProfile
 } = require("../controller/user");
 
 //Middleware
@@ -56,5 +58,12 @@ router.put(
   isAdmin,
   updateUserProfile
 );
+
+
+/**
+ * To update single user profile
+ */
+
+router.put("/update-single-user-profile/:id",requireLogin,updateSingleUserProfile);
 
 module.exports = router;

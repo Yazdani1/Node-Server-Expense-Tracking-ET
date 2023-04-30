@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const slugify = require("slugify");
+
 const User = require("../model/user");
 require("dotenv").config();
 
@@ -125,7 +126,7 @@ exports.getCurrentUserRole = async (req, res) => {
 };
 
 /**
- * To update user profile
+ * To update user profile and only admin can do it
  * @param {*} req
  * @param {*} res
  */
@@ -142,13 +143,63 @@ exports.updateUserProfile = async (req, res) => {
       blockUser,
     };
 
-    const updateOneUserProfile = await User.findByIdAndUpdate(updateQuery, {
-      $set: payload,
-    });
+    const updateOneUserProfile = await User.findByIdAndUpdate(
+      updateQuery,
+      {
+        $set: payload,
+      },
+      { new: true }
+    );
 
     res.status(200).json({
       message: "User profile update successfully",
       updateOneUserProfile,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Something went wrong" });
+  }
+};
+
+/**
+ * To update a single user profile and to add profile picture - only loged in user can update their own profile details
+ * @param {*} req
+ * @param {*} res
+ */
+exports.updateSingleUserProfile = async (req, res) => {
+  try {
+    const { name, email, imageUrl } = req.body;
+
+    const updateQuery = { _id: req.params.id };
+    const singleProfileDetails = await User.findById(updateQuery);
+
+    if (!singleProfileDetails) {
+      return res.status(422).json({ error: "User does not exist" });
+    }
+
+    const loggedInUser = req.user._id;
+    if (loggedInUser !== singleProfileDetails._id.toString()) {
+      return res
+        .status(422)
+        .json({ error: "You cannot update other users' profile details" });
+    }
+
+    const payload = {
+      name,
+      email,
+      imageUrl,
+    };
+
+    const user = await User.findByIdAndUpdate(
+      updateQuery,
+      {
+        $set: payload,
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: "Your profile has been updated successfully",
+      user,
     });
   } catch (error) {
     res.status(500).json({ error: "Something went wrong" });

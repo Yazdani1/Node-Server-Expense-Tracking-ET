@@ -10,7 +10,8 @@ exports.createExpenseCategory = async (req, res) => {
   try {
     const { category_name, expense_book_id } = req.body;
 
-    const alreadyExist = await ExpenseCategory.findOne({ category_name });
+    const alreadyExist = await ExpenseCategory.findOne({postedBy: req.user._id, category_name,expense_book_id });
+
     if (alreadyExist) {
       return res
         .status(422)

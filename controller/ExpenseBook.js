@@ -46,8 +46,11 @@ exports.getExpenseBookList = async (req, res) => {
   }
 };
 
-// to get expense book details, expense category and expense book item
-
+/**
+ * To get expense book details, expense category and expense book item
+ * @param {*} req 
+ * @param {*} res 
+ */
 exports.getExpenseBookDetailsCategoryExpenseList = async (req, res) => {
   try {
     const singleExpenseBook_query = { slug: req.params.slug };

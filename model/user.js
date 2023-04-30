@@ -9,6 +9,9 @@ var userSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  imageUrl: {
+    type: String,
+  },
   password: {
     type: String,
     required: true,

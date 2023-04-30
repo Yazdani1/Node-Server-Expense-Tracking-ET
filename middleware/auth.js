@@ -1,8 +1,14 @@
 const jwt = require("jsonwebtoken");
+
 const User = require("../model/user");
 
-//for token
-
+/**
+ * For token
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns 
+ */
 exports.requireLogin = (req, res, next) => {
   try {
     if (req.headers.authorization) {
@@ -20,8 +26,14 @@ exports.requireLogin = (req, res, next) => {
   }
 };
 
-// for adimn to add role based authentication and access for an api
 
+/**
+ * for admin to add role based authentication and access for api end-point
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns 
+ */
 exports.isAdmin = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
