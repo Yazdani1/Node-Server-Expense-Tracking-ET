@@ -4,11 +4,12 @@ const uuid = require("uuid");
 const ExpenseBook = require("../model/ExpenseBook");
 const ExpenseCategory = require("../model/ExpenseCategory");
 const ExpenseList = require("../model/ExpenseList");
+const User = require("../model/user");
 
 /**
  * To create expense book
- * @param {*} req 
- * @param {*} res 
+ * @param {*} req
+ * @param {*} res
  */
 exports.createExpenseBook = async (req, res) => {
   try {
@@ -23,7 +24,18 @@ exports.createExpenseBook = async (req, res) => {
 
     const saveExpenseBook = await ExpenseBook.create(expenseBookDetails);
 
-    res.status(201).json(saveExpenseBook);
+    // To add points in the user profile after creating a single expense book
+    if (saveExpenseBook) {
+      // When user create one expense book, we add point to the particulr user account.
+      const addUserPoints = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+          $inc: { points: 5 },
+        },
+        { new: true }
+      );
+      res.status(201).json({ saveExpenseBook, addUserPoints });
+    }
   } catch (error) {
     res.status(500).json({ error: "Something went wrong" });
   }
@@ -48,8 +60,8 @@ exports.getExpenseBookList = async (req, res) => {
 
 /**
  * To get expense book details, expense category and expense book item
- * @param {*} req 
- * @param {*} res 
+ * @param {*} req
+ * @param {*} res
  */
 exports.getExpenseBookDetailsCategoryExpenseList = async (req, res) => {
   try {

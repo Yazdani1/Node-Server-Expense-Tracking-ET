@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const validAwardTypes = ["PullShark", "QuickDraw", "Yolo", "GoldVolt"];
+
 var userSchema = mongoose.Schema({
   name: {
     type: String,
@@ -27,6 +29,18 @@ var userSchema = mongoose.Schema({
     enum: ["Admin", "Subscriber"],
     default: "Subscriber",
   },
+  award: {
+    type: [{
+      type: String,
+      enum: validAwardTypes,
+    }],
+  },
+
+  accountType: {
+    type: String,
+    enum: ["Silver", "Gold","Premium"],
+    default: "Silver",
+  },
   blockUser: {
     type: Boolean,
     default: false,
@@ -46,10 +60,15 @@ var userSchema = mongoose.Schema({
   longitude:{
     type: String
   },
+  points: {
+    type: Number,
+    default: 0,
+  },
   date: {
     type: Date,
     default: Date.now,
   },
+
   resetToken: String,
   expireToken: Date,
 });

@@ -6,7 +6,8 @@ const {
   getAllUser,
   getCurrentUserRole,
   updateUserProfile,
-  updateSingleUserProfile
+  updateSingleUserProfile,
+  getLogedInUserProfile
 } = require("../controller/user");
 
 //Middleware
@@ -40,7 +41,8 @@ router.post("/login", validateUserLogin, runValidation, userLogin);
 /**
  * To get all the user lists and only adming can access it
  */
-router.get("/alluser", requireLogin, isAdmin, getAllUser);
+// router.get("/alluser", requireLogin, isAdmin, getAllUser);
+router.get("/alluser", getAllUser);
 
 /**
  * To get current user for the adming access in the frontend side. This will be used to have proteced route for the admin area.
@@ -65,5 +67,10 @@ router.put(
  */
 
 router.put("/update-single-user-profile/:id",requireLogin,updateSingleUserProfile);
+
+/**
+ * To get loged in user profile based on the token id- its for testing purpose
+ */
+router.get("/user-profile",requireLogin,getLogedInUserProfile);
 
 module.exports = router;

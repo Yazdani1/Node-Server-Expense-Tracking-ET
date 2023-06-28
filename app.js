@@ -19,7 +19,8 @@ app.use("/api",require("./router/user"));
 app.use("/api",require("./router/ExpenseBook"));
 app.use("/api",require("./router/ExpenseCategory"));
 app.use("/api",require("./router/ExpenseList"));
-
+app.use("/api",require("./router/NationaId"));
+app.use("/api",require("./router/Income"));
 
 app.listen(port, (req, res) => {
   console.log("Server connected");

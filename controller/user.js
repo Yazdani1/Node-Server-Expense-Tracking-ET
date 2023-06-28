@@ -84,9 +84,13 @@ exports.userLogin = async (req, res) => {
     if (!isMatchData) {
       return res.status(400).json({ error: "Wrong password" });
     }
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
-    });
+    const token = jwt.sign(
+      { _id: user._id, name: user.name },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "24h",
+      }
+    );
     user.password = undefined;
     user.expireToken = undefined;
     user.resetToken = undefined;
@@ -104,12 +108,28 @@ exports.userLogin = async (req, res) => {
  */
 exports.getAllUser = async (req, res) => {
   try {
-    const userlist = await User.find().sort({ date: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = 100;
+    const offset = (page - 1) * limit;
+    const userlist = await User.find()
+      .sort({ date: -1 })
+      .skip(offset)
+      .limit(limit)
+      .select("-password");
     res.status(200).json(userlist);
   } catch (error) {
     res.status(500).json({ error: "Something Went Wrong, Could not Log In" });
   }
 };
+
+// exports.getAllUser = async (req, res) => {
+//   try {
+//     const userlist = await User.find().sort({ date: -1 }).select("-password");
+//     res.status(200).json(userlist);
+//   } catch (error) {
+//     res.status(500).json({ error: "Something Went Wrong, Could not Log In" });
+//   }
+// };
 
 /**
  * To get current user role for admin area in frontend side
@@ -132,7 +152,27 @@ exports.getCurrentUserRole = async (req, res) => {
  */
 exports.updateUserProfile = async (req, res) => {
   try {
-    const { name, email, role, blockUser } = req.body;
+    const { name, email, role, blockUser, accountType, award } = req.body;
+
+    // To verify the award type
+
+    const validAwardTypes = ["PullShark", "QuickDraw", "Yolo", "GoldVolt"];
+    // Check if any value in the award array is invalid
+    const invalidAwards = award.filter(
+      (item) => !validAwardTypes.includes(item)
+    );
+
+    if (invalidAwards.length > 0) {
+      return res.status(400).json({ error: "Invalid award types" });
+    }
+
+    // Check for duplicates
+    const duplicates = award.filter(
+      (item, index) => award.indexOf(item) !== index
+    );
+    if (duplicates.length > 0) {
+      return res.status(400).json({ error: "Duplicate awards are not allowed" });
+    }
 
     const updateQuery = { _id: req.params.id };
 
@@ -141,6 +181,8 @@ exports.updateUserProfile = async (req, res) => {
       email,
       role,
       blockUser,
+      accountType,
+      award,
     };
 
     const updateOneUserProfile = await User.findByIdAndUpdate(
@@ -201,6 +243,24 @@ exports.updateSingleUserProfile = async (req, res) => {
       message: "Your profile has been updated successfully",
       user,
     });
+  } catch (error) {
+    res.status(500).json({ error: "Something went wrong" });
+  }
+};
+
+/**
+ * To get loged in user profile based on the token id- its for testing purpose and can be used for showing the
+ * user profile details or maybe in the context api
+ * @param {*} req
+ * @param {*} res
+ */
+exports.getLogedInUserProfile = async (req, res) => {
+  try {
+    const userDetails = await User.findById(req.user._id).select("-password");
+
+    console.log(req.user?.name);
+
+    res.status(200).json(userDetails);
   } catch (error) {
     res.status(500).json({ error: "Something went wrong" });
   }
