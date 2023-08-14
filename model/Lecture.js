@@ -1,31 +1,21 @@
 const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Schema.Types;
 
-var courseSchema = mongoose.Schema({
-  title: {
+var lectureSchema = mongoose.Schema({
+  lectureTitle: {
     type: String,
     required: true,
   },
 
-  des: {
+  lectureDes: {
     type: String,
     required: true,
   },
 
-  coupon: {
-    type: String,
+  courseId: {
+    type: ObjectId,
+    ref: 'CourseSchema',
     required: true,
-  },
-
-  enrolledStudents: {
-    type: Number,
-    default: 0,
-  },
-
-  maxStudents: {
-    type: Number,
-    required: true,
-    default: 0,
   },
 
   slug: {
@@ -46,4 +36,4 @@ var courseSchema = mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('CourseSchema', courseSchema);
+module.exports = mongoose.model('LectureSchema', lectureSchema);
