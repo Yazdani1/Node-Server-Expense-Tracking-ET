@@ -1,9 +1,9 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const slugify = require("slugify");
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const slugify = require('slugify');
 
-const User = require("../model/user");
-require("dotenv").config();
+const User = require('../model/user');
+require('dotenv').config();
 
 /**
  * To do user registration
@@ -13,31 +13,17 @@ require("dotenv").config();
  */
 exports.userRegistration = async (req, res) => {
   try {
-    const {
-      name,
-      email,
-      password,
-      role,
-      city,
-      countryName,
-      continent,
-      latitude,
-      longitude,
-    } = req.body;
+    const { name, email, password, role, city, countryName, continent, latitude, longitude } = req.body;
 
     const slug = slugify(name);
     const alreadyExist = await User.findOne({ name });
     if (alreadyExist) {
-      return res
-        .status(422)
-        .json({ error: "User name already exist. try a different name" });
+      return res.status(422).json({ error: 'User name already exist. try a different name' });
     }
 
     let user = await User.findOne({ email });
     if (user) {
-      return res
-        .status(422)
-        .json({ error: "User already exist with same email address" });
+      return res.status(422).json({ error: 'User already exist with same email address' });
     }
     const hash_password = await bcrypt.hash(password, 10);
 
@@ -55,11 +41,9 @@ exports.userRegistration = async (req, res) => {
     });
 
     const createUserAccount = await User.create(userDetails);
-    res
-      .status(201)
-      .json({ createUserAccount, message: "Account Created Successfully" });
+    res.status(201).json({ createUserAccount, message: 'Account Created Successfully' });
   } catch (error) {
-    res.status(500).json({ error: "Account could not create" });
+    res.status(500).json({ error: 'Account could not create' });
   }
 };
 
@@ -78,26 +62,22 @@ exports.userLogin = async (req, res) => {
 
     let user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ error: "Account could not found " });
+      return res.status(400).json({ error: 'Account could not found ' });
     }
     const isMatchData = await bcrypt.compare(password, user.password);
     if (!isMatchData) {
-      return res.status(400).json({ error: "Wrong password" });
+      return res.status(400).json({ error: 'Wrong password' });
     }
-    const token = jwt.sign(
-      { _id: user._id, name: user.name },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "24h",
-      }
-    );
+    const token = jwt.sign({ _id: user._id, name: user.name }, process.env.JWT_SECRET, {
+      expiresIn: '24h',
+    });
     user.password = undefined;
     user.expireToken = undefined;
     user.resetToken = undefined;
 
     res.status(200).json({ token, user });
   } catch (error) {
-    res.status(500).json({ error: "Something Went Wrong, Could not Log In" });
+    res.status(500).json({ error: 'Something Went Wrong, Could not Log In' });
   }
 };
 
@@ -111,14 +91,10 @@ exports.getAllUser = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 100;
     const offset = (page - 1) * limit;
-    const userlist = await User.find()
-      .sort({ date: -1 })
-      .skip(offset)
-      .limit(limit)
-      .select("-password");
+    const userlist = await User.find().sort({ date: -1 }).skip(offset).limit(limit).select('-password');
     res.status(200).json(userlist);
   } catch (error) {
-    res.status(500).json({ error: "Something Went Wrong, Could not Log In" });
+    res.status(500).json({ error: 'Something Went Wrong, Could not Log In' });
   }
 };
 
@@ -141,7 +117,16 @@ exports.getCurrentUserRole = async (req, res) => {
     const user = await User.findById(req.user._id);
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ error: "Something Went Wrong, Could not Log In" });
+    res.status(500).json({ error: 'Something Went Wrong, Could not Log In' });
+  }
+};
+
+exports.getInstructorProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Something Went Wrong, Could not Log In' });
   }
 };
 
@@ -156,22 +141,18 @@ exports.updateUserProfile = async (req, res) => {
 
     // To verify the award type
 
-    const validAwardTypes = ["PullShark", "QuickDraw", "Yolo", "GoldVolt"];
+    const validAwardTypes = ['PullShark', 'QuickDraw', 'Yolo', 'GoldVolt'];
     // Check if any value in the award array is invalid
-    const invalidAwards = award.filter(
-      (item) => !validAwardTypes.includes(item)
-    );
+    const invalidAwards = award.filter((item) => !validAwardTypes.includes(item));
 
     if (invalidAwards.length > 0) {
-      return res.status(400).json({ error: "Invalid award types" });
+      return res.status(400).json({ error: 'Invalid award types' });
     }
 
     // Check for duplicates
-    const duplicates = award.filter(
-      (item, index) => award.indexOf(item) !== index
-    );
+    const duplicates = award.filter((item, index) => award.indexOf(item) !== index);
     if (duplicates.length > 0) {
-      return res.status(400).json({ error: "Duplicate awards are not allowed" });
+      return res.status(400).json({ error: 'Duplicate awards are not allowed' });
     }
 
     const updateQuery = { _id: req.params.id };
@@ -194,11 +175,11 @@ exports.updateUserProfile = async (req, res) => {
     );
 
     res.status(200).json({
-      message: "User profile update successfully",
+      message: 'User profile update successfully',
       updateOneUserProfile,
     });
   } catch (error) {
-    res.status(500).json({ error: "Something went wrong" });
+    res.status(500).json({ error: 'Something went wrong' });
   }
 };
 
@@ -209,26 +190,25 @@ exports.updateUserProfile = async (req, res) => {
  */
 exports.updateSingleUserProfile = async (req, res) => {
   try {
-    const { name, email, imageUrl } = req.body;
+    const { name, email, imageUrl, skills } = req.body;
 
     const updateQuery = { _id: req.params.id };
     const singleProfileDetails = await User.findById(updateQuery);
 
     if (!singleProfileDetails) {
-      return res.status(422).json({ error: "User does not exist" });
+      return res.status(422).json({ error: 'User does not exist' });
     }
 
     const loggedInUser = req.user._id;
     if (loggedInUser !== singleProfileDetails._id.toString()) {
-      return res
-        .status(422)
-        .json({ error: "You cannot update other users' profile details" });
+      return res.status(422).json({ error: "You cannot update other users' profile details" });
     }
 
     const payload = {
       name,
       email,
       imageUrl,
+      skills,
     };
 
     const user = await User.findByIdAndUpdate(
@@ -240,11 +220,11 @@ exports.updateSingleUserProfile = async (req, res) => {
     );
 
     res.status(200).json({
-      message: "Your profile has been updated successfully",
+      message: 'Your profile has been updated successfully',
       user,
     });
   } catch (error) {
-    res.status(500).json({ error: "Something went wrong" });
+    res.status(500).json({ error: 'Something went wrong' });
   }
 };
 
@@ -256,12 +236,12 @@ exports.updateSingleUserProfile = async (req, res) => {
  */
 exports.getLogedInUserProfile = async (req, res) => {
   try {
-    const userDetails = await User.findById(req.user._id).select("-password");
+    const userDetails = await User.findById(req.user._id).select('-password');
 
     console.log(req.user?.name);
 
     res.status(200).json(userDetails);
   } catch (error) {
-    res.status(500).json({ error: "Something went wrong" });
+    res.status(500).json({ error: 'Something went wrong' });
   }
 };

@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const validAwardTypes = ["PullShark", "QuickDraw", "Yolo", "GoldVolt"];
+const validAwardTypes = ['PullShark', 'QuickDraw', 'Yolo', 'GoldVolt'];
 
 var userSchema = mongoose.Schema({
   name: {
@@ -10,6 +10,9 @@ var userSchema = mongoose.Schema({
   email: {
     type: String,
     required: true,
+  },
+  skills: {
+    type: [String],
   },
   imageUrl: {
     type: String,
@@ -26,39 +29,41 @@ var userSchema = mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["Admin", "Subscriber"],
-    default: "Subscriber",
+    enum: ['Admin', 'Subscriber', 'Instructor'],
+    default: 'Subscriber',
   },
   award: {
-    type: [{
-      type: String,
-      enum: validAwardTypes,
-    }],
+    type: [
+      {
+        type: String,
+        enum: validAwardTypes,
+      },
+    ],
   },
 
   accountType: {
     type: String,
-    enum: ["Silver", "Gold","Premium"],
-    default: "Silver",
+    enum: ['Silver', 'Gold', 'Premium'],
+    default: 'Silver',
   },
   blockUser: {
     type: Boolean,
     default: false,
   },
-  city:{
-    type: String
+  city: {
+    type: String,
   },
-  countryName:{
-    type: String
+  countryName: {
+    type: String,
   },
-  continent:{
-    type: String
+  continent: {
+    type: String,
   },
-  latitude:{
-    type: String
+  latitude: {
+    type: String,
   },
-  longitude:{
-    type: String
+  longitude: {
+    type: String,
   },
   points: {
     type: Number,
@@ -73,4 +78,4 @@ var userSchema = mongoose.Schema({
   expireToken: Date,
 });
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model('User', userSchema);
