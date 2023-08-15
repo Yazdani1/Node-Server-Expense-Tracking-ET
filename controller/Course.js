@@ -41,9 +41,37 @@ exports.createCourse = async (req, res) => {
  */
 exports.getInstructorCourses = async (req, res) => {
   try {
-    const courseList = await Course.find({ postedBy: req.user._id }).populate('postedBy', 'name slug role').sort({ date: -1 });
+    const courseList = await Course.find({ postedBy: req.user._id }).populate('postedBy', 'name slug role imageUrl').sort({ date: -1 });
 
     res.status(200).json(courseList);
+  } catch (error) {
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+};
+
+/**
+ * To get all the course lists for subscriber view
+ * @param {*} req
+ * @param {*} res
+ */
+exports.getAllCourses = async (req, res) => {
+  try {
+    const courseList = await Course.find().populate('postedBy', 'name slug role imageUrl').sort({ date: -1 });
+    res.status(200).json(courseList);
+  } catch (error) {
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+};
+
+/**
+ * To get a single course details for subscriber enrollment
+ */
+exports.getSingleCourseDetails = async (req, res) => {
+  try {
+    const courseQuery = { slug: req.params.slug };
+
+    const singleCourse = await Course.findOne(courseQuery).populate('postedBy', 'name slug role imageUrl');
+    res.status(200).json(singleCourse);
   } catch (error) {
     res.status(500).json({ error: 'Something went wrong' });
   }

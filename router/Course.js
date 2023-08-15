@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-const { createCourse, getInstructorCourses } = require('../controller/Course');
+const { createCourse, getInstructorCourses, getAllCourses, getSingleCourseDetails } = require('../controller/Course');
 
 //Middleware
 const { requireLogin, isAdmin, isInstructor } = require('../middleware/auth');
@@ -10,7 +10,7 @@ const { validateCourse } = require('../validators/CourseValidation');
 const { runValidation } = require('../validators/Index');
 
 /**
- * To do user registration
+ * To create course
  */
 
 router.post('/create-course', requireLogin, isInstructor, validateCourse, runValidation, createCourse);
@@ -19,5 +19,17 @@ router.post('/create-course', requireLogin, isInstructor, validateCourse, runVal
  * To get loged in instructor courses
  */
 router.get('/get-instructor-courses', requireLogin, isInstructor, getInstructorCourses);
+
+/**
+ * To get all the course lists for subscribers so that subscriber can enroll to a course
+ */
+
+router.get('/get-all-courses', requireLogin, getAllCourses);
+
+/**
+ * To get a single course details for subscriber enrollment
+ */
+
+router.get('/get-single-course-details/:slug', requireLogin, getSingleCourseDetails);
 
 module.exports = router;

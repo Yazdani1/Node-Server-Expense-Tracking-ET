@@ -139,6 +139,12 @@ exports.updateUserProfile = async (req, res) => {
   try {
     const { name, email, role, blockUser, accountType, award } = req.body;
 
+    const slug = slugify(name);
+    const alreadyExist = await User.findOne({ name });
+    if (alreadyExist) {
+      return res.status(422).json({ error: 'User name already exist. try a different name' });
+    }
+
     // To verify the award type
 
     const validAwardTypes = ['PullShark', 'QuickDraw', 'Yolo', 'GoldVolt'];
@@ -164,6 +170,7 @@ exports.updateUserProfile = async (req, res) => {
       blockUser,
       accountType,
       award,
+      slug,
     };
 
     const updateOneUserProfile = await User.findByIdAndUpdate(
