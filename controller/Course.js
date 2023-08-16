@@ -50,6 +50,23 @@ exports.getInstructorCourses = async (req, res) => {
 };
 
 /**
+ * To search loged in instructor courses in ascending and decinding
+ * @param {*} req
+ * @param {*} res
+ */
+exports.searchInstructorCourse = async (req, res) => {
+  try {
+    const courseList = await Course.find({ postedBy: req.user._id })
+      .populate('postedBy', 'name slug role imageUrl')
+      .sort({ title: req.query.sortbytitle });
+
+    res.status(200).json(courseList);
+  } catch (error) {
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+};
+
+/**
  * To get all the course lists for subscriber view
  * @param {*} req
  * @param {*} res

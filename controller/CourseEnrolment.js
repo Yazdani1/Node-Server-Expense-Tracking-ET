@@ -12,15 +12,15 @@ exports.createCourseEnrolment = async (req, res) => {
   try {
     const { courseInstructorId, courseId, coupon } = req.body;
 
-    const alreadyExist = await CourseEnrolment.findOne({ courseId, enrolledBy: req.user });
-    if (alreadyExist) {
-      return res.status(422).json({ error: 'You already enroled to this course!' });
-    }
-
     const singleCourse = await Course.findOne({ _id: courseId }).populate('postedBy', 'name slug role _id');
 
     if (coupon !== singleCourse.coupon) {
       return res.status(422).json({ error: 'Wrong coupon code!' });
+    }
+
+    const alreadyExist = await CourseEnrolment.findOne({ courseId, enrolledBy: req.user });
+    if (alreadyExist) {
+      return res.status(422).json({ error: 'You already enroled to this course!' });
     }
 
     if (singleCourse.enrolledStudents >= singleCourse.maxStudents) {
@@ -46,7 +46,7 @@ exports.createCourseEnrolment = async (req, res) => {
         },
         { new: true }
       );
-      res.status(201).json({ updateEnroledStudent, saveCourseEnrolment });
+      res.status(201).json(saveCourseEnrolment);
     }
   } catch (error) {
     res.status(500).json({ error: 'Something went wrong' });
@@ -63,7 +63,8 @@ exports.getAllEnroledCourseLists = async (req, res) => {
     const enrolledCourseLists = await CourseEnrolment.find({ enrolledBy: req.user._id })
       .populate('courseInstructorId', 'name slug role _id')
       .populate('courseId', 'title des coupon enrolledStudents maxStudents slug')
-      .populate('enrolledBy', 'name slug role _id');
+      .populate('enrolledBy', 'name slug role _id')
+      .sort({ date: -1 });
 
     res.status(200).json(enrolledCourseLists);
   } catch (error) {

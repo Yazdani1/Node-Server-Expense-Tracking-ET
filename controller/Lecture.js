@@ -2,6 +2,7 @@ const uuid = require('uuid');
 
 const Lecture = require('../model/Lecture');
 const Course = require('../model/Course');
+const CourseEnrolment = require('../model/CourseEnrolment');
 
 /**
  * To create course lecture
@@ -61,9 +62,20 @@ exports.getCourseLectures = async (req, res) => {
       return res.status(422).json({ error: 'You cant view other instructor course details and lectures' });
     }
 
-    const lectureLists = await Lecture.find({ courseId: singleCourse._id.toString() }).populate('postedBy', 'name slug role').sort({ date: 1 });
+    const lectureLists = await Lecture.find({ courseId: singleCourse._id.toString() })
+      .populate('courseId')
+      .populate('postedBy', 'name slug role')
+      .sort({ date: 1 });
 
-    res.status(200).json({ singleCourse, lectureLists });
+    // here { enrolledBy: 1 } means i only want to get that field data and
+    // i dont need rest of the field from CourseEnrolment schema
+
+    const enroledStudents = await CourseEnrolment.find({ courseId: singleCourse._id.toString() }, { enrolledBy: 1, coupon: 1, date: 1 }).populate(
+      'enrolledBy',
+      'name slug role email'
+    );
+
+    res.status(200).json({ singleCourse, lectureLists, enroledStudents });
   } catch (error) {
     res.status(500).json({ error: 'Something went wrong' });
   }
