@@ -21,10 +21,10 @@ router.post('/create-course', requireLogin, isInstructor, validateCourse, runVal
 router.get('/get-instructor-courses', requireLogin, isInstructor, getInstructorCourses);
 
 /**
- * To search loged in instructor courses in ascending and decinding 
+ * To filter loged in instructor courses in ascending and decinding
  */
 
-router.get("/search-instrcutor-course",requireLogin,isInstructor,searchInstructorCourse);
+router.get('/search-instrcutor-course', requireLogin, isInstructor, searchInstructorCourse);
 
 /**
  * To get all the course lists for subscribers so that subscriber can enroll to a course

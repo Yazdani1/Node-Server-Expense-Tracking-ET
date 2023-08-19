@@ -50,7 +50,7 @@ exports.getInstructorCourses = async (req, res) => {
 };
 
 /**
- * To search loged in instructor courses in ascending and decinding
+ * To filter loged in instructor courses in ascending and decinding
  * @param {*} req
  * @param {*} res
  */

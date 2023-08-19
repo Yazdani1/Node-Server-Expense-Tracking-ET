@@ -17,6 +17,10 @@ var lectureSchema = mongoose.Schema({
     ref: 'CourseSchema',
     required: true,
   },
+  position: {
+    type: Number,
+    default: 0,
+  },
 
   slug: {
     type: String,
