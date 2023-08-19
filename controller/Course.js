@@ -58,6 +58,7 @@ exports.searchInstructorCourse = async (req, res) => {
   try {
     const courseList = await Course.find({ postedBy: req.user._id })
       .populate('postedBy', 'name slug role imageUrl')
+      .collation({ locale: 'en', strength: 2 })
       .sort({ title: req.query.sortbytitle });
 
     res.status(200).json(courseList);

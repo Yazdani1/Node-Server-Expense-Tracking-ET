@@ -85,6 +85,12 @@ exports.getCourseLectures = async (req, res) => {
   }
 };
 
+/**
+ * To update single lecture and instructor can update their own lecture
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
 exports.updateSingleLecture = async (req, res) => {
   try {
     const updateQuery = { _id: req.params.id };

@@ -121,6 +121,11 @@ exports.getCurrentUserRole = async (req, res) => {
   }
 };
 
+/**
+ * To get instructor access in the frontend side.
+ * This will be used to have proteced route for the instructor area in the frontend side.
+ */
+
 exports.getInstructorProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
