@@ -30,3 +30,19 @@ exports.validateUserRegistration = [
     .isLength({ min: 6, max: 20 })
     .withMessage('password must be 6 to 20 characters long!'),
 ];
+
+/**
+ * To validate forgot password email input field
+ */
+
+exports.validateUserForgotPassword = [check('email').normalizeEmail().isEmail().withMessage('please add your registered email!')];
+
+/**
+ * To validate rest password  input field
+ */
+
+exports.validateUserRestPassword = [
+  check('email').normalizeEmail().isEmail().withMessage('please add your registered e-mail'),
+  // check('passwordResetCode').normalizeEmail().isEmail().withMessage('please add password verification code'),
+  // check('newPassowrd').normalizeEmail().isEmail().withMessage('please add new passowrd'),
+];

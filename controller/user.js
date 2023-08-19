@@ -1,9 +1,25 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const slugify = require('slugify');
+const AWS = require('aws-sdk');
+const crypto = require('crypto');
+
+// Use crypto functions here
 
 const User = require('../model/user');
 require('dotenv').config();
+
+/**
+ * AWS - config to send email and use aws services
+ */
+const awsConfig = {
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID_INFO,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_kEY_INFO,
+  region: process.env.AWS_REGION_INFO,
+  apiVersion: process.env.AWS_API_VERSION_INFO,
+  correctClockSkew: true,
+};
+const SES = new AWS.SES(awsConfig);
 
 /**
  * To do user registration
@@ -41,6 +57,36 @@ exports.userRegistration = async (req, res) => {
     });
 
     const createUserAccount = await User.create(userDetails);
+
+    // To send email through aws ses when user loged in
+
+    const params = {
+      Source: process.env.EMAIL_FROM_INFO,
+      Destination: {
+        ToAddresses: [process.env.EMAIL_FROM_INFO],
+      },
+      ReplyToAddresses: [email],
+      Message: {
+        Body: {
+          Html: {
+            Charset: 'UTF-8',
+            Data: `
+              <html>
+                <h1 style={{color:"red"}}>Congratulations! You have created your account on Expense tracking web app</h1>
+                <p>Visit your profile</p>
+              </html>
+              `,
+          },
+        },
+        Subject: {
+          Charset: 'UTF-8',
+          Data: 'Hello: ' + name,
+        },
+      },
+    };
+
+    const emailSent = SES.sendEmail(params).promise();
+
     res.status(201).json({ createUserAccount, message: 'Account Created Successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Account could not create' });
@@ -71,11 +117,155 @@ exports.userLogin = async (req, res) => {
     const token = jwt.sign({ _id: user._id, name: user.name }, process.env.JWT_SECRET, {
       expiresIn: '24h',
     });
+
+    // To send email through aws ses when user loged in
+
+    const params = {
+      Source: process.env.EMAIL_FROM_INFO,
+      Destination: {
+        ToAddresses: [process.env.EMAIL_FROM_INFO],
+      },
+      ReplyToAddresses: [email],
+      Message: {
+        Body: {
+          Html: {
+            Charset: 'UTF-8',
+            Data: `
+              <html>
+                <h1 style={{color:"red"}}>You have signed in to your Expense tracking web app account!</h1>
+                <p>Visit your profile</p>
+              </html>
+              `,
+          },
+        },
+        Subject: {
+          Charset: 'UTF-8',
+          Data: 'Welcome Back: ' + email,
+        },
+      },
+    };
+
+    const emailSent = SES.sendEmail(params).promise();
+
     user.password = undefined;
     user.expireToken = undefined;
     user.resetToken = undefined;
 
     res.status(200).json({ token, user });
+  } catch (error) {
+    res.status(500).json({ error: 'Something Went Wrong, Could not Log In' });
+  }
+};
+
+/**
+ * Forgot password - by sending varification code to user email address
+ * @param {*} req
+ * @param {*} res
+ */
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const singleUser = await User.findOne({ email });
+    if (!singleUser) {
+      return res.status(404).json({ error: 'User could not be found with your email!' });
+    }
+
+    // Generate a secure verification code
+    const verificationCode = crypto.randomBytes(3).toString('hex'); // Generates a 6-character code
+
+    // Calculate the expiration time (e.g., 15 minutes from now)
+    // This will add a time for user verification code. so when send the code it also update the time
+    // so that we can check the time and after that time if user try to use the code.
+    // we can show error message and user wont be able to change their password
+
+    const expirationTime = Date.now() + 15 * 60 * 1000; // 15 minutes in milliseconds
+
+    // Store verification code and expiration time in the user's profile
+    const payload = {
+      passwordResetCode: verificationCode,
+      passwordResetCodeExpiration: expirationTime,
+    };
+
+    const updateUserProfile = await User.findByIdAndUpdate(
+      singleUser._id.toString(),
+      {
+        $set: payload,
+      },
+      { new: true }
+    );
+
+    // Send email with the verification code
+    const params = {
+      Source: process.env.EMAIL_FROM_INFO,
+      Destination: {
+        ToAddresses: [process.env.EMAIL_FROM_INFO],
+      },
+      ReplyToAddresses: [email],
+      Message: {
+        Body: {
+          Html: {
+            Charset: 'UTF-8',
+            Data: `
+              <html>
+                <h1 style={{color:"red"}}>Here is your password reset code. use this code to reset your password!</h1>
+                <h2>${verificationCode}</h2>
+                <p>Reset your password</p>
+              </html>
+              `,
+          },
+        },
+        Subject: {
+          Charset: 'UTF-8',
+          Data: 'Password reset code: ' + verificationCode,
+        },
+      },
+    };
+
+    const emailSent = SES.sendEmail(params).promise();
+
+    console.log(singleUser._id);
+    console.log(verificationCode);
+
+    res.status(200).json(updateUserProfile);
+  } catch (error) {
+    res.status(500).json({ error: 'Something Went Wrong, Could not Log In' });
+  }
+};
+
+/**
+ * Reset password if password reset code match
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, verificationCode, newPassowrd } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User could not found' });
+    }
+
+    // to check the code that stored user profile when user sent forgot password email
+    // if the code match then user will be able to set a new password
+    if (verificationCode !== user.passwordResetCode) {
+      return res.status(400).json({ error: 'Invalid verification code.' });
+    }
+
+    // Check if the code has expired - then user wont be able to add their new password
+    const currentTime = Date.now();
+    if (currentTime > user.passwordResetCodeExpiration) {
+      return res.status(400).json({ error: 'Verification code has expired.' });
+    }
+
+    console.log(user.passwordResetCode);
+    console.log(user.passwordResetCodeExpiration);
+
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: 'Something Went Wrong, Could not Log In' });
   }

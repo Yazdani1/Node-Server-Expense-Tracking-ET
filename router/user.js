@@ -9,13 +9,15 @@ const {
   updateSingleUserProfile,
   getLogedInUserProfile,
   getInstructorProfile,
+  forgotPassword,
+  resetPassword,
 } = require('../controller/user');
 
 //Middleware
 const { requireLogin, isAdmin, isInstructor } = require('../middleware/auth');
 
 //Validation
-const { validateUserLogin, validateUserRegistration } = require('../validators/UserValidation');
+const { validateUserLogin, validateUserRegistration, validateUserForgotPassword, validateUserRestPassword } = require('../validators/UserValidation');
 const { runValidation } = require('../validators/Index');
 
 /**
@@ -65,5 +67,17 @@ router.put('/update-single-user-profile/:id', requireLogin, updateSingleUserProf
  * To get loged in user profile based on the token id- its for testing purpose
  */
 router.get('/user-profile', requireLogin, getLogedInUserProfile);
+
+/**
+ * Forgot password - by sending varification code to user email address
+ */
+
+router.post('/forgot-password', validateUserForgotPassword, runValidation, forgotPassword);
+
+/**
+ * Reset a new password - if verification code match then user will be able to add their new password
+ */
+
+router.post('/reset-password', validateUserRestPassword, runValidation, resetPassword);
 
 module.exports = router;
