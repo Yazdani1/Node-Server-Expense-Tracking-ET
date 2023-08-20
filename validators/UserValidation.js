@@ -43,6 +43,12 @@ exports.validateUserForgotPassword = [check('email').normalizeEmail().isEmail().
 
 exports.validateUserRestPassword = [
   check('email').normalizeEmail().isEmail().withMessage('please add your registered e-mail'),
-  // check('passwordResetCode').normalizeEmail().isEmail().withMessage('please add password verification code'),
-  // check('newPassowrd').normalizeEmail().isEmail().withMessage('please add new passowrd'),
+  check('verificationCode').trim().not().isEmpty().withMessage('please add password verification code!'),
+  check('newPassowrd')
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage('please add your password!')
+    .isLength({ min: 6, max: 20 })
+    .withMessage('please add new passowrd-password must be 6 to 20 characters long!'),
 ];

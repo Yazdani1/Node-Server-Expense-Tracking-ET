@@ -180,13 +180,17 @@ exports.forgotPassword = async (req, res) => {
     // so that we can check the time and after that time if user try to use the code.
     // we can show error message and user wont be able to change their password
 
-    const expirationTime = Date.now() + 15 * 60 * 1000; // 15 minutes in milliseconds
+    const expirationTime = Date.now() + 2 * 60 * 1000; // 15 minutes in milliseconds
 
     // Store verification code and expiration time in the user's profile
     const payload = {
       passwordResetCode: verificationCode,
       passwordResetCodeExpiration: expirationTime,
     };
+
+    // We need to update user profile with the verification code and code expiration time.
+    // So that when user reset their password we can match the code and expiration time
+    // Then user will be able to change thier password
 
     const updateUserProfile = await User.findByIdAndUpdate(
       singleUser._id.toString(),
@@ -197,6 +201,7 @@ exports.forgotPassword = async (req, res) => {
     );
 
     // Send email with the verification code
+
     const params = {
       Source: process.env.EMAIL_FROM_INFO,
       Destination: {
@@ -208,17 +213,58 @@ exports.forgotPassword = async (req, res) => {
           Html: {
             Charset: 'UTF-8',
             Data: `
-              <html>
-                <h1 style={{color:"red"}}>Here is your password reset code. use this code to reset your password!</h1>
-                <h2>${verificationCode}</h2>
-                <p>Reset your password</p>
-              </html>
-              `,
+          <html>
+            <head>
+              <style>
+                /* Inline CSS for styling */
+                body {
+                  margin: 0;
+                  padding: 0;
+                  font-family: Arial, sans-serif;
+                  background-color: #f4f4f4;
+                }
+                h1{
+                  color: white;
+                }
+                .container {
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 300px;
+                  background-color: green;
+                  border-radius: 10px;
+                  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                  padding: 20px;
+                }
+                .code {
+                  background-color: #f2f2f2;
+                  font-size: 20px;
+                  padding: 20px;
+                  border-radius: 5px;
+                  justify-content: center;
+                  align-items: center;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div>
+                  <h1>Here is your password reset code. Use this code to reset your password:</h1>
+                  <div class="code">Code:${verificationCode}</div>
+                  <div class="code">Your E-mail is :${email}</div>
+
+                  <p>Click the link below to reset your password:</p>
+                  <a href="https://example.com/reset-password">Reset Password</a>
+                </div>
+              </div>
+            </body>
+          </html>
+        `,
           },
         },
         Subject: {
           Charset: 'UTF-8',
-          Data: 'Password reset code: ' + verificationCode,
+          Data: 'Password Reset Code: ' + verificationCode,
         },
       },
     };
@@ -262,10 +308,25 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({ error: 'Verification code has expired.' });
     }
 
+    const hash_password = await bcrypt.hash(newPassowrd, 10);
+
+    const payload = {
+      passwordResetCode: null,
+      passwordResetCodeExpiration: null,
+      password: hash_password,
+    };
+    const updateUserPassword = await User.findByIdAndUpdate(
+      user._id.toString(),
+      {
+        $set: payload,
+      },
+      { new: true }
+    );
+
     console.log(user.passwordResetCode);
     console.log(user.passwordResetCodeExpiration);
 
-    res.status(200).json(user);
+    res.status(200).json(updateUserPassword);
   } catch (error) {
     res.status(500).json({ error: 'Something Went Wrong, Could not Log In' });
   }

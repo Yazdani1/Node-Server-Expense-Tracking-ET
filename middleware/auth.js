@@ -38,6 +38,7 @@ exports.requireLogin = (req, res, next) => {
 exports.isAdmin = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
+
     if (user.role != 'Admin') {
       return res.status(500).json({ error: 'Unauthorized. Only Admin has access' });
     } else {
@@ -57,12 +58,38 @@ exports.isAdmin = async (req, res, next) => {
 exports.isInstructor = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
+
     if (user.role != 'Instructor') {
-      return res.status(500).json({ error: 'Unauthorized. Only Instructor has access' });
+      return res.status(403).json({ error: 'Unauthorized. Only Instructor has access' });
     } else {
       next();
     }
   } catch (error) {
-    res.status(400).json({ error: 'Something Went Wrong' });
+    res.status(500).json({ error: 'Something Went Wrong' });
+  }
+};
+
+/**
+ * For Employer route api end point validation.
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ * @returns
+ */
+exports.isEmployer = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.role !== 'Employer') {
+      return res.status(403).json({ error: 'Unauthorized. Only Employer has access' });
+    }
+
+    next();
+  } catch (error) {
+    res.status(500).json({ error: 'Something Went Wrong' });
   }
 };

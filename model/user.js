@@ -29,7 +29,7 @@ var userSchema = mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['Admin', 'Subscriber', 'Instructor'],
+    enum: ['Admin', 'Subscriber', 'Instructor', 'Employer'],
     default: 'Subscriber',
   },
   award: {
