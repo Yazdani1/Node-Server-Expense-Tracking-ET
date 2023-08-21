@@ -396,10 +396,10 @@ exports.updateUserProfile = async (req, res) => {
     const { name, email, role, blockUser, accountType, award } = req.body;
 
     const slug = slugify(name);
-    const alreadyExist = await User.findOne({ name });
-    if (alreadyExist) {
-      return res.status(422).json({ error: 'User name already exist. try a different name' });
-    }
+    // const alreadyExist = await User.findOne({ name });
+    // if (alreadyExist) {
+    //   return res.status(422).json({ error: 'User name already exist. try a different name' });
+    // }
 
     // To verify the award type
 

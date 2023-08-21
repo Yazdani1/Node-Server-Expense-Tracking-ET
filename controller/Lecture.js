@@ -93,6 +93,7 @@ exports.getCourseLectures = async (req, res) => {
  */
 exports.updateSingleLecture = async (req, res) => {
   try {
+    
     const updateQuery = { _id: req.params.id };
 
     const singleLecture = await Lecture.findById(updateQuery).populate('postedBy', 'name slug role _id');
