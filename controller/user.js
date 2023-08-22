@@ -387,6 +387,27 @@ exports.getInstructorProfile = async (req, res) => {
 };
 
 /**
+ * To get employer access in the frontend side.
+ * This will be used to have proteced route for the employer area in the frontend side.
+ * Only Employer can access it
+ * @param {*} req
+ * @param {*} res
+ */
+exports.getEmployerProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Something Went Wrong, Could not Log In' });
+  }
+};
+
+/**
  * To update user profile and only admin can do it
  * @param {*} req
  * @param {*} res

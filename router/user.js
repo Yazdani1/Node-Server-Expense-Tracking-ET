@@ -11,10 +11,11 @@ const {
   getInstructorProfile,
   forgotPassword,
   resetPassword,
+  getEmployerProfile,
 } = require('../controller/user');
 
 //Middleware
-const { requireLogin, isAdmin, isInstructor } = require('../middleware/auth');
+const { requireLogin, isAdmin, isInstructor, isEmployer } = require('../middleware/auth');
 
 //Validation
 const { validateUserLogin, validateUserRegistration, validateUserForgotPassword, validateUserRestPassword } = require('../validators/UserValidation');
@@ -50,6 +51,14 @@ router.get('/current-user-role', requireLogin, isAdmin, getCurrentUserRole);
  */
 
 router.get('/instructor-profile', requireLogin, isInstructor, getInstructorProfile);
+
+/**
+ * To get employer access in the frontedn side.
+ * This will be used to have proteced route for the employer area in the frontend side.
+ * Only Employer can do it
+ */
+
+router.get('/employer-profile', requireLogin, isEmployer, getEmployerProfile);
 
 /**
  * To update user profile and only admin can do it

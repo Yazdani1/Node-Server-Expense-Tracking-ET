@@ -181,7 +181,8 @@ exports.updateJobPosts = async (req, res) => {
 };
 
 /**
- * To job posts for home page and only status approved and visibility public post will get
+ * To get job posts for home page and only status approved and visibility public post will get
+ * This to show all the job posts lists in the home page
  * @param {*} req
  * @param {*} res
  */
@@ -189,7 +190,7 @@ exports.getAllPostsList = async (req, res) => {
   try {
     const allJobs = await Job.find({ visibility: 'Public', status: 'Approved' })
       .populate('postedBy', 'name role')
-      .populate('approvedBy', 'name role')
+      .populate('approvedBy', 'name role email')
       .sort({ date: -1 });
 
     res.status(200).json(allJobs);

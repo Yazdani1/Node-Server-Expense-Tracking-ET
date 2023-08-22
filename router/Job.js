@@ -60,6 +60,6 @@ router.put('/update-job-posts/:id', requireLogin, isAdmin, updateJobPosts);
  * To job posts for home page and only status approved and visibility public post will get
  */
 
-router.get('/all-posts', getAllPostsList);
+router.get('/all-job-posts', getAllPostsList);
 
 module.exports = router;
