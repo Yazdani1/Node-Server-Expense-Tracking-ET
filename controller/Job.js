@@ -1,6 +1,7 @@
 const uuid = require('uuid');
 
 const Job = require('../model/Job');
+const User = require('../model/user');
 
 /**
  * To create a job posts and only employer can do it
@@ -194,6 +195,39 @@ exports.getAllPostsList = async (req, res) => {
       .sort({ date: -1 });
 
     res.status(200).json(allJobs);
+  } catch (error) {
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+};
+
+/**
+ * To match job and suggest job for subscriber user based on their skills that you added to their profile
+ * It will auto suggest job that match their skill sin thei profile
+ * @param {*} req
+ * @param {*} res
+ */
+exports.getJobMatch = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User id not found' });
+    }
+
+    const userSkills = user.skills.map((skill) => new RegExp(skill, 'i'));
+
+    // the query retrieves job posts that have at least one required skill that matches a skill
+    // in the user's skill set. The query doesn't require an exact match of all skills; it only needs
+    // one matching skill to consider a job as a match.
+    const matchingJobs = await Job.find({
+      jobSkills: { $in: userSkills },
+      visibility: 'Public',
+      status: 'Approved',
+    })
+      .populate('postedBy', 'name role')
+      .populate('approvedBy', 'name role email');
+
+    res.json(matchingJobs);
   } catch (error) {
     res.status(500).json({ error: 'Something went wrong' });
   }

@@ -10,6 +10,7 @@ const {
   getAllEmployerJobPosts,
   updateJobPosts,
   getAllPostsList,
+  getJobMatch,
 } = require('../controller/Job');
 
 //Middleware
@@ -45,6 +46,7 @@ router.delete('/delete-single-jobpost/:id', requireLogin, isEmployer, deleteEmpl
 
 /**
  * To gel all the job posts and only admin can get all employer job posts
+ * Only admin can accessit
  */
 
 router.get('/get-allemployer-jobposts', requireLogin, isAdmin, getAllEmployerJobPosts);
@@ -57,9 +59,16 @@ router.get('/get-allemployer-jobposts', requireLogin, isAdmin, getAllEmployerJob
 router.put('/update-job-posts/:id', requireLogin, isAdmin, updateJobPosts);
 
 /**
- * To job posts for home page and only status approved and visibility public post will get
+ * To get job posts for home page and only status approved and visibility public post will get
  */
 
 router.get('/all-job-posts', getAllPostsList);
+
+/**
+ * To match job and suggest job for subscriber user based on their skills that you added to their profile
+ * It will auto suggest job that match their skill sin thei profile
+ */
+
+router.get('/get-job-match', requireLogin, getJobMatch);
 
 module.exports = router;
