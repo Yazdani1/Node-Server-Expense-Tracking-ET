@@ -180,7 +180,7 @@ exports.forgotPassword = async (req, res) => {
     // so that we can check the time and after that time if user try to use the code.
     // we can show error message and user wont be able to change their password
 
-    const expirationTime = Date.now() + 2 * 60 * 1000; // 15 minutes in milliseconds
+    const expirationTime = Date.now() + 2 * 60 * 1000; // 2 minutes in milliseconds
 
     // Store verification code and expiration time in the user's profile
     const payload = {

@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-const { createJobWishList, getJobWishList, deleteJobWishlist } = require('../controller/JobWishList');
+const { createJobWishList, getJobWishList, deleteJobWishlist, getSinlgeJobWishlist } = require('../controller/JobWishList');
 
 //Middleware
 const { requireLogin } = require('../middleware/auth');
@@ -26,5 +26,12 @@ router.get('/get-job-wishlist', requireLogin, getJobWishList);
  * To delete job wishlist post and only subscriber can delete their own job wishlist
  */
 router.delete('/delete-job-wishlist/:id', requireLogin, deleteJobWishlist);
+
+/**
+ * To get a single job wishlist for a single user for a single job post
+ * This will be used to remove wishlist item - Its just to get the id of a job wishlist
+ */
+
+router.get('/get-single-job-wishlist/:slug', requireLogin, getSinlgeJobWishlist);
 
 module.exports = router;

@@ -48,6 +48,7 @@ exports.createLectures = async (req, res) => {
 
 /**
  * To get a single course and list of lectures for a single course
+ * To get list of enrolled students for a single course
  * @param {*} req
  * @param {*} res
  */
@@ -93,7 +94,6 @@ exports.getCourseLectures = async (req, res) => {
  */
 exports.updateSingleLecture = async (req, res) => {
   try {
-    
     const updateQuery = { _id: req.params.id };
 
     const singleLecture = await Lecture.findById(updateQuery).populate('postedBy', 'name slug role _id');

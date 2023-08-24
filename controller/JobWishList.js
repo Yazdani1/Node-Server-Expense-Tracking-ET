@@ -1,6 +1,7 @@
 const uuid = require('uuid');
 
 const JobWishList = require('../model/JobWishList');
+const Job = require('../model/Job');
 
 /**
  * To create job wishlist and subscriber can add any jobs in their wihlist
@@ -63,7 +64,7 @@ exports.deleteJobWishlist = async (req, res) => {
 
     const singleJob = await JobWishList.findById(deleteQuery).populate('postedBy', 'name slug role _id');
     if (!singleJob) {
-      return res.status(422).json({ error: 'Job post id could not found' });
+      return res.status(404).json({ error: 'Job post id could not found' });
     }
 
     const logedInUser = req.user._id;
@@ -74,6 +75,29 @@ exports.deleteJobWishlist = async (req, res) => {
     const deleteSingleJobWishlistPost = await JobWishList.findByIdAndDelete(deleteQuery);
 
     res.status(200).json({ message: 'wishlist job deleted successfully', deleteSingleJobWishlistPost });
+  } catch (error) {
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+};
+
+/**
+ * To get a single job wishlist for a single user for a single job post
+ * This will be used to remove wishlist item - Its just to get the id of a job wishlist
+ * @param {*} req
+ * @param {*} res
+ */
+exports.getSinlgeJobWishlist = async (req, res) => {
+  try {
+    const jobQuery = { slug: req.params.slug };
+
+    const singleJobPoST = await Job.findOne(jobQuery);
+
+    const jobWishlist = await JobWishList.findOne({ jobPostId: singleJobPoST._id.toString(), postedBy: req.user._id }).populate(
+      'postedBy',
+      'name role _id'
+    );
+
+    res.status(200).json(jobWishlist);
   } catch (error) {
     res.status(500).json({ error: 'Something went wrong' });
   }
