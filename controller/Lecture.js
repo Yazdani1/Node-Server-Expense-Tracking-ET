@@ -59,7 +59,7 @@ exports.getCourseLectures = async (req, res) => {
     const singleCourse = await Course.findOne(query).populate('postedBy', 'name slug role _id');
 
     if (!singleCourse) {
-      return res.status(422).json({ error: 'Single course id could not found' });
+      return res.status(404).json({ error: 'Single course id could not found' });
     }
 
     const logedInUser = req.user._id;
@@ -75,10 +75,10 @@ exports.getCourseLectures = async (req, res) => {
     // here { enrolledBy: 1 } means i only want to get that field data and
     // i dont need to get rest of the field from CourseEnrolment schema
 
-    const enroledStudents = await CourseEnrolment.find({ courseId: singleCourse._id.toString() }, { enrolledBy: 1, coupon: 1, date: 1 }).populate(
-      'enrolledBy',
-      'name slug role email'
-    );
+    const enroledStudents = await CourseEnrolment.find(
+      { courseId: singleCourse._id.toString() },
+      { enrolledBy: 1, coupon: 1, date: 1, courseId: 1 }
+    ).populate('enrolledBy', 'name slug role email');
 
     res.status(200).json({ singleCourse, lectureLists, enroledStudents });
   } catch (error) {

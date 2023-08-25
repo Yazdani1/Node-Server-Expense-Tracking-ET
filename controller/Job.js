@@ -58,7 +58,7 @@ exports.updateSingleJobPost = async (req, res) => {
 
     const singleJob = await Job.findById(updateQuery).populate('postedBy', 'name slug role _id');
     if (!singleJob) {
-      return res.status(422).json({ error: 'Job post id could not found' });
+      return res.status(404).json({ error: 'Job post id could not found' });
     }
 
     // to check - employer can update their own job posts.
@@ -103,7 +103,7 @@ exports.deleteEmployerJobPost = async (req, res) => {
 
     const singleJob = await Job.findById(deleteQuery).populate('postedBy', 'name slug role _id');
     if (!singleJob) {
-      return res.status(422).json({ error: 'Job post id could not found' });
+      return res.status(404).json({ error: 'Job post id could not found' });
     }
 
     // to check - employer can delete their own job posts.
@@ -151,7 +151,7 @@ exports.updateJobPosts = async (req, res) => {
 
     const singleJob = await Job.findById(updateQuery).populate('postedBy', 'name slug role _id');
     if (!singleJob) {
-      return res.status(422).json({ error: 'Job post id could not found' });
+      return res.status(404).json({ error: 'Job post id could not found' });
     }
 
     const { title, des, jobCity, jobSkills, visibility, status } = req.body;
