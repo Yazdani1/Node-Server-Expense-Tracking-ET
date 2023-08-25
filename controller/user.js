@@ -108,7 +108,7 @@ exports.userLogin = async (req, res) => {
 
     let user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ error: 'Account could not found ' });
+      return res.status(400).json({ error: 'Account could not found' });
     }
     const isMatchData = await bcrypt.compare(password, user.password);
     if (!isMatchData) {
