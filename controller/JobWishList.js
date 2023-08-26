@@ -89,7 +89,6 @@ exports.deleteJobWishlist = async (req, res) => {
 exports.getSinlgeJobWishlist = async (req, res) => {
   try {
     const jobQuery = { slug: req.params.slug };
-
     const singleJobPoST = await Job.findOne(jobQuery);
 
     const jobWishlist = await JobWishList.findOne({ jobPostId: singleJobPoST._id.toString(), postedBy: req.user._id }).populate(
