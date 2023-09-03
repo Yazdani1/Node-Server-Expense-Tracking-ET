@@ -232,3 +232,32 @@ exports.getJobMatch = async (req, res) => {
     res.status(500).json({ error: 'Something went wrong' });
   }
 };
+
+/**
+ * To get job details and other job for the same user.
+ * Its for public view
+ * @param {*} req
+ * @param {*} res
+ */
+exports.getJobDetails = async (req, res) => {
+  try {
+    const singleJobQuery = { slug: req.params.slug };
+    const singleJob = await Job.findOne(singleJobQuery).populate('postedBy', 'name email role');
+
+    if (!singleJob) {
+      return res.status(404).json({ error: 'Job post id could not found' });
+    }
+
+    const simmilarJobBySameEmployer = await Job.find({
+      _id: { $ne: singleJob._id },
+      postedBy: singleJob.postedBy._id.toString(),
+      visibility: 'Public',
+      status: 'Approved',
+    }).populate('postedBy', 'name email role');
+
+    res.status(200).json({ singleJob, simmilarJobBySameEmployer });
+  } catch (error) {
+    res.status(500).json({ error: 'Something went wrong' });
+    console.log(error);
+  }
+};

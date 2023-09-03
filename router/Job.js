@@ -11,6 +11,7 @@ const {
   updateJobPosts,
   getAllPostsList,
   getJobMatch,
+  getJobDetails,
 } = require('../controller/Job');
 
 //Middleware
@@ -70,5 +71,12 @@ router.get('/all-job-posts', getAllPostsList);
  */
 
 router.get('/get-job-match', requireLogin, getJobMatch);
+
+/**
+ * To get job details and other job for the same user.
+ * Its for public view
+ */
+
+router.get('/get-job-details/:slug', getJobDetails);
 
 module.exports = router;

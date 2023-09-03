@@ -64,7 +64,7 @@ exports.deleteJobWishlist = async (req, res) => {
 
     const singleJob = await JobWishList.findById(deleteQuery).populate('postedBy', 'name slug role _id');
     if (!singleJob) {
-      return res.status(404).json({ error: 'Job post id could not found' });
+      return res.status(404).json({ error: 'Job wishlist id could not found' });
     }
 
     const logedInUser = req.user._id;
