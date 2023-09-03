@@ -26,6 +26,7 @@ app.use('/api', require('./router/Lecture'));
 app.use('/api', require('./router/CourseEnrolment'));
 app.use('/api', require('./router/Job'));
 app.use('/api', require('./router/JobWishList'));
+app.use('/api', require('./router/JobApplication'));
 
 app.listen(port, (req, res) => {
   console.log('Server connected');

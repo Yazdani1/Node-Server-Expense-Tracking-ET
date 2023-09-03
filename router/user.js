@@ -53,7 +53,7 @@ router.get('/current-user-role', requireLogin, isAdmin, getCurrentUserRole);
 router.get('/instructor-profile', requireLogin, isInstructor, getInstructorProfile);
 
 /**
- * To get employer access in the frontedn side.
+ * To get employer access in the frontend side.
  * This will be used to have proteced route for the employer area in the frontend side.
  * Only Employer can do it
  */

@@ -25,7 +25,7 @@ exports.requireLogin = (req, res, next) => {
   } catch (err) {
     console.log(err);
     // return res.status(500).json({ error: err.message });
-    // return res.status(500).json({ error: 'Token has expired! try a new token' });
+    return res.status(500).json({ error: 'Token has expired! try a new token' });
   }
 };
 
