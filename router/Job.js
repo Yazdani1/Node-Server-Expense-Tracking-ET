@@ -12,6 +12,7 @@ const {
   getAllPostsList,
   getJobMatch,
   getJobDetails,
+  updateJobVisibility,
 } = require('../controller/Job');
 
 //Middleware
@@ -84,5 +85,7 @@ router.get('/get-job-details/:slug', getJobDetails);
  * If user want to make public or private to all of their job posts then they can do all these in just one click.
  * it first get all employer job posts then update all the job posts visibility based on employer input
  */
+
+router.post('/update-job-post-visiblity', requireLogin, isEmployer, updateJobVisibility);
 
 module.exports = router;

@@ -261,3 +261,27 @@ exports.getJobDetails = async (req, res) => {
     console.log(error);
   }
 };
+
+/**
+ * To update employer job posts, Public or Privaate, it can change all the job posts visibility status all together
+ * If user want to make public or private to all of their job posts then they can do all these in just one click.
+ * it first get all employer job posts then update all the job posts visibility based on employer input
+ * @param {*} req
+ * @param {*} res
+ */
+exports.updateJobVisibility = async (req, res) => {
+  try {
+    const { updateVisibility } = req.body;
+
+    const jobPostList = await Job.find({ postedBy: req.user._id });
+
+    for (let job of jobPostList) {
+      job.visibility = updateVisibility;
+      await job.save();
+      console.log(job);
+    }
+    res.status(200).json(jobPostList);
+  } catch (error) {
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+};
