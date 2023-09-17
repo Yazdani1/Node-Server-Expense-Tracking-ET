@@ -79,4 +79,10 @@ router.get('/get-job-match', requireLogin, getJobMatch);
 
 router.get('/get-job-details/:slug', getJobDetails);
 
+/**
+ * To update employer job posts, Public or Privaate, it can change all the job posts visibility status all together
+ * If user want to make public or private to all of their job posts then they can do all these in just one click.
+ * it first get all employer job posts then update all the job posts visibility based on employer input
+ */
+
 module.exports = router;
